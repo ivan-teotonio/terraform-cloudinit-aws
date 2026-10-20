@@ -1,0 +1,44 @@
+name: "Terraform CI/CD Pipeline"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    name: "Terraform Validation & Apply"
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: "us-east-1"
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: 1. Verificação de Formatação
+        run: terraform fmt -check
+
+      - name: 2. Inicialização do Terraform
+        run: terraform init
+
+      - name: 3. Validação do Código
+        run: terraform validate
+
+      - name: 4. Geração do Plano de Execução (Plan)
+        run: terraform plan -input=false
+
+      - name: 5. Aplicação das Mudanças (Apply no Push para Main)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false

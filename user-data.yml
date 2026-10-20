@@ -1,0 +1,31 @@
+#cloud-config
+
+# 1. Definição do Hostname da máquina
+hostname: server-app-demo
+prefer_fqdn_over_hostname: false
+
+# 2. Atualização dos índices de pacotes e atualização do sistema
+package_update: true
+package_upgrade: true
+
+# 3. Instalação dos pacotes exigidos (Docker e Nginx)
+packages:
+  - nginx
+  - docker.io
+  - curl
+
+# 4. Execução de comandos pós-instalação e inicialização dos serviços
+runcmd:
+  # Garantir que o Nginx seja iniciado e habilitado no boot
+  - systemctl enable nginx
+  - systemctl start nginx
+
+  # Garantir que o Docker seja iniciado e habilitado no boot
+  - systemctl enable docker
+  - systemctl start docker
+
+  # Adicionar o usuário ubuntu padrão ao grupo do docker
+  - usermod -aG docker ubuntu
+
+  # Ajustar a página padrão do Nginx para indicar sucesso do Cloud-Init
+  - echo "<h1>Infraestrutura provisionada via Terraform + Cloud-Init com sucesso!</h1>" > /var/www/html/index.html
