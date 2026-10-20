@@ -16,7 +16,7 @@ data "aws_ami" "ubuntu" {
 
 # Security Group para liberar HTTP (80) e SSH (22)
 resource "aws_security_group" "web_sg" {
-  name        = "sg_app_${var.environment}"
+  name_prefix = "sg_app_${var.environment}-"
   description = "Permite trafego HTTP e SSH"
 
   ingress {
